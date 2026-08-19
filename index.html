@@ -478,6 +478,31 @@
             canvas.width = container.clientWidth;
             canvas.height = container.clientHeight;
             buildStations();
+            updateUnitsTargets();
+        }
+
+        // Update all units' target positions based on current station positions
+        function updateUnitsTargets() {
+            units.forEach(unit => {
+                let stationIndex = -1;
+                let station = null;
+
+                // Find the station for current status
+                for (let i = 0; i < stations.length; i++) {
+                    if (stations[i].type === unit.status) {
+                        stationIndex = i;
+                        station = stations[i];
+                        break;
+                    }
+                }
+
+                // If we found the station, update target to match new position
+                if (station) {
+                    unit.targetX = station.x;
+                    unit.targetY = station.y + unit.offsetY;
+                    unit.stationIndex = stationIndex;
+                }
+            });
         }
 
         // Build stations with responsive positioning
