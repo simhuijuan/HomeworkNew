@@ -254,7 +254,7 @@
         .color-unit { background: #00d4ff; }
         .color-pass { background: #00ff00; }
         .color-fail { background: #ff4444; }
-        .color-repair { background: #ffaa00; }
+        .color-scrap { background: #888888; }
 
         .scrollable::-webkit-scrollbar {
             width: 6px;
@@ -433,6 +433,10 @@
                     <div class="legend-item">
                         <div class="legend-color color-repair"></div>
                         <span>In Repair</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color color-scrap"></div>
+                        <span>Scrapped</span>
                     </div>
                 </div>
             </div>
@@ -690,6 +694,8 @@
                 let fillColor = '#00d4ff';
                 if (this.status === 'repair') {
                     fillColor = '#ffaa00';
+                } else if (this.status === 'scrap') {
+                    fillColor = '#888888';
                 } else if (this.passed === true) {
                     fillColor = '#00ff00';
                 } else if (this.passed === false) {
