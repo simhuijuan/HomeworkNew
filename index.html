@@ -526,7 +526,8 @@
                 { name: 'Testing', x: padding + stationSpacing * 1.5, y: topY, type: 'testing', color: '#00d4ff' },
                 { name: 'Inspection', x: padding + stationSpacing * 2.5, y: topY, type: 'inspection', color: '#00d4ff' },
                 { name: 'Packing', x: padding + stationSpacing * 3.5, y: topY, type: 'packing', color: '#00d4ff' },
-                { name: 'Repair', x: padding + stationSpacing * 2.5, y: bottomY, type: 'repair', color: '#ffaa00' }
+                { name: 'Repair', x: padding + stationSpacing * 2.5, y: bottomY, type: 'repair', color: '#ffaa00' },
+                { name: 'Scrap', x: padding + stationSpacing * 3.5, y: bottomY, type: 'scrap', color: '#888888' }
             ];
         }
 
@@ -772,6 +773,12 @@
             ctx.beginPath();
             ctx.moveTo(stations[2].x, stations[2].y + 25);
             ctx.lineTo(stations[4].x, stations[4].y - 25);
+            ctx.stroke();
+
+            // Inspection -> Scrap (lower path)
+            ctx.beginPath();
+            ctx.moveTo(stations[2].x + 35, stations[2].y + 25);
+            ctx.lineTo(stations[5].x - 35, stations[5].y - 25);
             ctx.stroke();
 
             // Repair -> Packing
