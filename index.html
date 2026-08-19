@@ -326,7 +326,7 @@
                 <div class="section-title">Production Rate</div>
                 <div class="config-input-group">
                     <label>Units/Min</label>
-                    <input type="number" id="productionRate" min="1" max="60" value="6" onchange="updateConfig()">
+                    <input type="number" id="productionRate" min="1" max="60" value="60" onchange="updateConfig()">
                 </div>
             </div>
 
@@ -338,7 +338,7 @@
                     <div class="station-config-header">🔧 Assembly</div>
                     <div class="config-input-group">
                         <label>Processing Time (s)</label>
-                        <input type="number" id="assemblyTime" min="5" max="60" value="15" onchange="updateConfig()">
+                        <input type="number" id="assemblyTime" min="5" max="60" value="5" onchange="updateConfig()">
                     </div>
                 </div>
 
@@ -346,7 +346,7 @@
                     <div class="station-config-header">⚡ Testing</div>
                     <div class="config-input-group">
                         <label>Processing Time (s)</label>
-                        <input type="number" id="testingTime" min="5" max="60" value="12" onchange="updateConfig()">
+                        <input type="number" id="testingTime" min="5" max="60" value="5" onchange="updateConfig()">
                     </div>
                 </div>
 
@@ -354,7 +354,7 @@
                     <div class="station-config-header">✓ Inspection</div>
                     <div class="config-input-group">
                         <label>Processing Time (s)</label>
-                        <input type="number" id="inspectionTime" min="5" max="60" value="10" onchange="updateConfig()">
+                        <input type="number" id="inspectionTime" min="5" max="60" value="5" onchange="updateConfig()">
                     </div>
                     <div class="config-input-group">
                         <label>Failure Rate (%)</label>
@@ -366,7 +366,7 @@
                     <div class="station-config-header">🔨 Repair</div>
                     <div class="config-input-group">
                         <label>Processing Time (s)</label>
-                        <input type="number" id="repairTime" min="5" max="60" value="20" onchange="updateConfig()">
+                        <input type="number" id="repairTime" min="5" max="60" value="5" onchange="updateConfig()">
                     </div>
                 </div>
 
@@ -374,7 +374,7 @@
                     <div class="station-config-header">📦 Packing</div>
                     <div class="config-input-group">
                         <label>Processing Time (s)</label>
-                        <input type="number" id="packingTime" min="5" max="60" value="8" onchange="updateConfig()">
+                        <input type="number" id="packingTime" min="5" max="60" value="5" onchange="updateConfig()">
                     </div>
                 </div>
             </div>
@@ -402,6 +402,10 @@
                     <div class="stat-box">
                         <div class="stat-label">In Repair</div>
                         <div class="stat-value" id="unitsRepair" style="color: #ffaa00;">0</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Scrapped</div>
+                        <div class="stat-value" id="unitsScrap" style="color: #ff6600;">0</div>
                     </div>
                     <div class="stat-box">
                         <div class="stat-label">Floor</div>
@@ -438,13 +442,13 @@
     <script>
         // Configuration object
         let config = {
-            productionRate: 6,
-            assemblyTime: 15,
-            testingTime: 12,
-            inspectionTime: 10,
+            productionRate: 60,
+            assemblyTime: 5,
+            testingTime: 5,
+            inspectionTime: 5,
             failureRate: 10,
-            repairTime: 20,
-            packingTime: 8
+            repairTime: 5,
+            packingTime: 5
         };
 
         // Statistics
@@ -454,6 +458,7 @@
             unitsPassed: 0,
             unitsFailed: 0,
             unitsRepair: 0,
+            unitsScrap: 0,
             unitsFloor: 0
         };
 
@@ -550,6 +555,7 @@
                 unitsPassed: 0,
                 unitsFailed: 0,
                 unitsRepair: 0,
+                unitsScrap: 0,
                 unitsFloor: 0
             };
             updateStats();
@@ -564,6 +570,7 @@
             document.getElementById('unitsPassed').textContent = stats.unitsPassed;
             document.getElementById('unitsFailed').textContent = stats.unitsFailed;
             document.getElementById('unitsRepair').textContent = stats.unitsRepair;
+            document.getElementById('unitsScrap').textContent = stats.unitsScrap;
             document.getElementById('unitsFloor').textContent = units.filter(u => u.status !== 'complete').length;
         }
 
@@ -576,6 +583,7 @@
                 this.processingTime = config.assemblyTime;
                 this.startTime = Date.now();
                 this.passed = null; // null, true (passed), false (failed)
+                this.fromRepair = false; // Track if unit came from repair station
                 this.x = stations[0].x;
                 this.y = stations[0].y;
                 this.targetX = stations[0].x;
@@ -643,23 +651,32 @@
                         this.targetX = stations[3].x;
                         this.targetY = stations[3].y + this.offsetY;
                         stats.unitsPassed++;
-                    } else {
+                    } else if (!this.fromRepair) {
+                        // Failed inspection - first time, send to repair
                         this.status = 'repair';
                         this.stationIndex = 4;
                         this.targetX = stations[4].x;
                         this.targetY = stations[4].y + this.offsetY;
                         stats.unitsFailed++;
                         stats.unitsRepair++;
+                    } else {
+                        // Failed inspection after repair - scrap the unit
+                        this.status = 'scrap';
+                        stats.unitsScrap++;
                     }
                 } else if (this.status === 'repair') {
-                    this.status = 'packing';
-                    this.stationIndex = 3;
-                    this.targetX = stations[3].x;
-                    this.targetY = stations[3].y + this.offsetY;
+                    // After repair, go back to inspection
+                    this.status = 'inspection';
+                    this.stationIndex = 2;
+                    this.targetX = stations[2].x;
+                    this.targetY = stations[2].y + this.offsetY;
+                    this.fromRepair = true;
                     stats.unitsRepair--;
                 } else if (this.status === 'packing') {
                     this.status = 'complete';
                     stats.unitsOut++;
+                } else if (this.status === 'scrap') {
+                    this.status = 'complete';
                 }
 
                 this.startTime = Date.now();
