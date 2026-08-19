@@ -700,20 +700,24 @@
             ctx.lineWidth = 1;
             ctx.setLineDash([5, 5]);
 
+            // Dynamic offset based on station width
+            const stationWidth = 120;
+            const connectionOffset = stationWidth / 2 + 5; // 65 pixels from center
+
             // Assembly -> Testing -> Inspection
             for (let i = 0; i < stations.length - 1; i++) {
                 if (i !== 2) { // Skip inspection to packing connection for clarity
                     ctx.beginPath();
-                    ctx.moveTo(stations[i].x + 35, stations[i].y);
-                    ctx.lineTo(stations[i+1].x - 35, stations[i+1].y);
+                    ctx.moveTo(stations[i].x + connectionOffset, stations[i].y);
+                    ctx.lineTo(stations[i+1].x - connectionOffset, stations[i+1].y);
                     ctx.stroke();
                 }
             }
 
             // Inspection -> Packing (upper path)
             ctx.beginPath();
-            ctx.moveTo(stations[2].x + 35, stations[2].y - 10);
-            ctx.lineTo(stations[3].x - 35, stations[3].y - 10);
+            ctx.moveTo(stations[2].x + connectionOffset, stations[2].y - 10);
+            ctx.lineTo(stations[3].x - connectionOffset, stations[3].y - 10);
             ctx.stroke();
 
             // Inspection -> Repair
@@ -724,8 +728,8 @@
 
             // Repair -> Packing
             ctx.beginPath();
-            ctx.moveTo(stations[4].x + 35, stations[4].y);
-            ctx.lineTo(stations[3].x - 35, stations[3].y + 10);
+            ctx.moveTo(stations[4].x + connectionOffset, stations[4].y);
+            ctx.lineTo(stations[3].x - connectionOffset, stations[3].y + 10);
             ctx.stroke();
 
             ctx.setLineDash([]);
