@@ -360,6 +360,10 @@
                         <label>Failure Rate (%)</label>
                         <input type="number" id="failureRate" min="0" max="50" value="10" onchange="updateConfig()">
                     </div>
+                    <div class="config-input-group">
+                        <label>2nd Failure Rate (%)</label>
+                        <input type="number" id="secondFailureRate" min="0" max="100" value="80" onchange="updateConfig()">
+                    </div>
                 </div>
 
                 <div class="station-config">
@@ -451,6 +455,7 @@
             testingTime: 5,
             inspectionTime: 5,
             failureRate: 10,
+            secondFailureRate: 80,
             repairTime: 5,
             packingTime: 5
         };
@@ -537,6 +542,7 @@
             config.testingTime = parseInt(document.getElementById('testingTime').value);
             config.inspectionTime = parseInt(document.getElementById('inspectionTime').value);
             config.failureRate = parseInt(document.getElementById('failureRate').value);
+            config.secondFailureRate = parseInt(document.getElementById('secondFailureRate').value);
             config.repairTime = parseInt(document.getElementById('repairTime').value);
             config.packingTime = parseInt(document.getElementById('packingTime').value);
         }
@@ -647,8 +653,9 @@
                     this.targetY = stations[2].y + this.offsetY;
                     this.passed = null;
                 } else if (this.status === 'inspection') {
-                    // Random inspection result
-                    this.passed = Math.random() * 100 > config.failureRate;
+                    // Use different failure rates based on whether unit came from repair
+                    const failureThreshold = this.fromRepair ? config.secondFailureRate : config.failureRate;
+                    this.passed = Math.random() * 100 > failureThreshold;
                     
                     if (this.passed) {
                         this.status = 'packing';
