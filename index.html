@@ -607,6 +607,7 @@
                     this.stationIndex = 2;
                     this.targetX = stations[2].x;
                     this.targetY = stations[2].y + this.offsetY;
+                    this.passed = null;
                 } else if (this.status === 'inspection') {
                     // Random inspection result
                     this.passed = Math.random() * 100 > config.failureRate;
